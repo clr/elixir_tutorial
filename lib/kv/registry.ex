@@ -55,9 +55,9 @@ defmodule MyApp.Registry do
   @doc """
   Handle some calls.
   """
-  def handle_call({:create, name}, state) do
+  def handle_call({:create, name}, _from, state) do
     case lookup(state.names, name) do
-      {:ok, _pid} -> {:noreply, state}
+      {:ok, pid} -> {:reply, pid, state}
       :error ->
         {:ok, pid} = MyApp.Bucket.Supervisor.start_bucket(state.buckets)
         ref = Process.monitor(pid)
@@ -65,7 +65,7 @@ defmodule MyApp.Registry do
         :ets.insert(state.names, {name, pid})
 
         GenEvent.sync_notify(state.events, {:create, name, pid})
-        {:noreply, %{state | refs: refs}}
+        {:reply, pid, %{state | refs: refs}}
     end
   end
 

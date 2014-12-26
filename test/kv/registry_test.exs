@@ -42,6 +42,7 @@ defmodule MyApp.RegistryTest do
     MyApp.Registry.create(registry, "shoppers")
     {:ok, bucket} = MyApp.Registry.lookup(ets, "shoppers")
     Agent.stop(bucket)
+    assert_receive {:stop, "shoppers", bucket}
     assert MyApp.Registry.lookup(ets, "shoppers") == :error
   end
 
